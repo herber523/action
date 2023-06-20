@@ -15,7 +15,7 @@ jobs:
       - name: Display Go version
         run: go version
       - name: Unit Test
-        run: go test -json ./... -o TestResults.json
+        run: go test -json ./... > TestResults.json
       - name: Upload Go test results
         uses: actions/upload-artifact@v3
         with:
