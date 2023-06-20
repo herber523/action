@@ -15,7 +15,8 @@ jobs:
         run: go version
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
-        with: v1.53
+        with: 
+          version: 'v1.53'
   unit-test:
     runs-on: ubuntu-latest
     steps:
