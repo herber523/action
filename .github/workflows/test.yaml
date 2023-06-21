@@ -7,5 +7,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - run: pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH") && echo pull_number=$pull_number >> $GITHUB_ENV
+    - run: jq --raw-output "$GITHUB_EVENT_PATH"
     - run: env
