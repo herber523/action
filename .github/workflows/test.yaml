@@ -44,7 +44,7 @@ jobs:
         gh pr comment $PR_NUMBER -b "Hello World, PR-$PR_NUMBER-V0.0.$ACTION_NUMBER"
       env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_URL: ${{ needs.lint.outputs.PR_URL }}
-          PR_NUMBER: ${{ needs.lint.outputs.PR_NUMBER }}
-          PR_TITLE: ${{ needs.lint.outputs.PR_TITLE }}
+          PR_URL: ${{ needs.info.outputs.PR_URL }}
+          PR_NUMBER: ${{ needs.info.outputs.PR_NUMBER }}
+          PR_TITLE: ${{ needs.info.outputs.PR_TITLE }}
           ACTION_NUMBER: ${{ github.run_number }}
