@@ -1,56 +1,49 @@
-name: PR_DEPLOY
-on:
-  issue_comment:
-    types: [created]
-jobs:
-  get-comment:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.issue.pull_request }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Get comment message
-        id: comment
-        run: |
-          MESSAGE=$(jq --raw-output .comment.body "$GITHUB_EVENT_PATH")
-          ACTION=$(echo $MESSAGE | cut -d '/' -f 1)
-          ENV=$(echo $MESSAGE | cut -d '/' -f 2)
-          VERSION=$(echo $MESSAGE | cut -d '/' -f 3)
-          RUN_NUMBER=$(echo $MESSAGE | cut -d '.' -f 3)
-          ACTION_ID=$(gh run list -w PR_BUILD --limit 100 --json number,databaseId --jq ".[] | select(.number == $RUN_NUMBER) | .databaseId")
-          echo "ACTION=$ACTION" >> $GITHUB_OUTPUT
-          echo "ENV=$ENV" >> $GITHUB_OUTPUT
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "RUN_NUMBER=$RUN_NUMBER" >> $GITHUB_OUTPUT
-          echo "ACTION_ID=$ACTION_ID" >> $GITHUB_OUTPUT
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    outputs:
-      ACTION: ${{ steps.comment.outputs.ACTION }}
-      ENV: ${{ steps.comment.outputs.ENV }}
-      VERSION: ${{ steps.comment.outputs.VERSION }}
-      RUN_NUMBER: ${{ steps.comment.outputs.RUN_NUMBER }}
-      ACTION_ID: ${{ steps.comment.outputs.ACTION_ID }}
-  deploy:
-    runs-on: ubuntu-latest
-    needs: get-comment
-    permissions:
-      pull-requests: write
+name: PR_BUILD
 
-    if: ${{ needs.get-comment.outputs.ACTION == 'deploy' }}
+on: [pull_request]
+
+jobs:
+  info:
+    runs-on: ubuntu-latest
+    permissions:
+        pull-requests: read
     steps:
-      - name: Deploy
-        run: |
-          echo "Deploying $ENV"
-          echo "Version $VERSION"
-      - uses: actions/checkout@v3
-      - name: Download artifact
-        run: |
-          gh run download $ACTION_ID
-          ls
-          ls output
-        env:
-          ACTION: ${{ needs.get-comment.outputs.ACTION }}
-          ENV: ${{ needs.get-comment.outputs.ENV }}
-          VERSION: ${{ needs.get-comment.outputs.VERSION }}
-          RUN_NUMBER: ${{ needs.get-comment.outputs.RUN_NUMBER }}
-          ACTION_ID: ${{ needs.get-comment.outputs.ACTION_ID }}
+    - uses: actions/checkout@v3
+    - name: Find PR number
+      id: pr
+      run: |
+        gh pr list --search $COMMIT_SHA --state open --json "title,url,number" --template '{{range .}} PR_URL={{.url}}{{"\n"}} PR_NUMBER={{.number}}{{"\n"}} PR_TITLE={{.title}} {{end}}' | xargs -I {} echo {} >> $GITHUB_OUTPUT
+      env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    outputs:
+        PR_URL: ${{ steps.pr.outputs.PR_URL }}
+        PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
+        PR_TITLE: ${{ steps.pr.outputs.PR_TITLE }}
+
+  comment:
+    runs-on: ubuntu-latest
+    needs: [info]
+    if: ${{ needs.info.outputs.PR_URL != '' }}
+    permissions:
+        pull-requests: write
+    steps:
+    - uses: actions/checkout@v3
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: output
+        path: main.go
+    - name: Comment
+      run: |
+        echo "PR_URL=$PR_URL"
+        echo "PR_NUMBER=$PR_NUMBER"
+        echo "PR_TITLE=$PR_TITLE"
+        echo "VERSION=PR-$PR_NUMBER-V0.0.$ACTION_NUMBER"
+        gh pr comment $PR_NUMBER -b "Hello World, PR-$PR_NUMBER-V0.0.$ACTION_NUMBER"
+      env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ needs.info.outputs.PR_URL }}
+          PR_NUMBER: ${{ needs.info.outputs.PR_NUMBER }}
+          PR_TITLE: ${{ needs.info.outputs.PR_TITLE }}
+          ACTION_NUMBER: ${{ github.run_number }}
