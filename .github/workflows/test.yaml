@@ -6,7 +6,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v1
     - uses: jwalton/gh-find-current-pr@v1
       id: findPr
       with:
@@ -15,4 +15,4 @@ jobs:
       if: success() && steps.findPr.outputs.number
       env:
         PR: ${{ steps.findPr.outputs.pr }}
-    - run: env
+    - run: env  
