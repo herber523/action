@@ -1,0 +1,23 @@
+name: MASTER_RELEASE
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+        pull-requests: write
+    steps:
+    - uses: actions/checkout@v3
+    - run: |
+        mkdir out
+        echo "Hello World" >> out/b 
+    - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "out/*"
+          generateReleaseNotes: "true"
+          token: ${{ secrets.GITHUB_TOKEN }}
+```
