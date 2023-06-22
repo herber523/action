@@ -13,5 +13,6 @@ jobs:
         run: |
           echo "::set-output name=MESSAGE::$(jq --raw-output .comment.body "$GITHUB_EVENT_PATH")"
           jq --raw-output .comment.body "$GITHUB_EVENT_PATH"
+          
     outputs:
       MESSAGE: ${{ steps.comment.outputs.MESSAGE }}
