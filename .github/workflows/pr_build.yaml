@@ -6,9 +6,8 @@ on:
 jobs:
   get-comment:
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
     steps:
+      - uses: actions/checkout@v3
       - name: Get comment message
         id: comment
         run: |
