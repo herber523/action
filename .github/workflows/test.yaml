@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Find PR number
-      run: gh pr list  --search "fdf7dc2a13f90e9b48ce40a64e330e260a7d637d"  --state open --json "title,url,number" --template '{{range .}} PR_URL={{.url}}{{"\n"}} PR_NUMBER={{.number}}{{"\n"}} PR_TITLE={{.title}} {{end}}' | xargs -I {} echo {} >> $GITHUB_ENV
+      run: gh pr list  --search ${{ github.sha }} --state open --json "title,url,number" --template '{{range .}} PR_URL={{.url}}{{"\n"}} PR_NUMBER={{.number}}{{"\n"}} PR_TITLE={{.title}} {{end}}' | xargs -I {} echo {} >> $GITHUB_ENV
       env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: ENV
