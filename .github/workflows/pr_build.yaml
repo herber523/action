@@ -6,6 +6,8 @@ on:
 jobs:
   get-comment:
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
     steps:
       - name: Get comment message
         id: comment
@@ -15,7 +17,7 @@ jobs:
           ENV=$(echo $MESSAGE | cut -d '/' -f 2)
           VERSION=$(echo $MESSAGE | cut -d '/' -f 3)
           RUN_NUMBER=$(echo $MESSAGE | cut -d '.' -f 3)
-      
+          gh run list --limit 100 --json number,databaseId --jq ".[] | select(.number == $RUN_NUMBER) | .databaseId"
           ACTION_ID=$(gh run list --limit 100 --json number,databaseId --jq ".[] | select(.number == $RUN_NUMBER) | .databaseId")
           echo "::set-output name=ACTION::$ACTION"
           echo "::set-output name=ENV::$ENV"
