@@ -42,6 +42,11 @@ jobs:
         pull-requests: write
     steps:
     - uses: actions/checkout@v3
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: output
+        path: $GITHUB_OUTPUT
     - name: Comment
       run: |
         echo "PR_URL=$PR_URL"
