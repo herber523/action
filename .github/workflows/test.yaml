@@ -1,4 +1,4 @@
-name: Feature Branch CI
+name: PR_BUILD
 
 on: [pull_request]
 
@@ -12,8 +12,7 @@ jobs:
     - name: Find PR number
       id: pr
       run: |
-        gh pr list  --search $COMMIT_SHA --state open --json "title,url,number" --template '{{range .}} PR_URL={{.url}}{{"\n"}} PR_NUMBER={{.number}}{{"\n"}} PR_TITLE={{.title}} {{end}}' | xargs -I {} echo {} >> $GITHUB_OUTPUT
-        cat $GITHUB_OUTPUT
+        gh pr list --search $COMMIT_SHA --state open --json "title,url,number" --template '{{range .}} PR_URL={{.url}}{{"\n"}} PR_NUMBER={{.number}}{{"\n"}} PR_TITLE={{.title}} {{end}}' | xargs -I {} echo {} >> $GITHUB_OUTPUT
       env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}

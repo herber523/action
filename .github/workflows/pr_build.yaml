@@ -1,5 +1,4 @@
-name: PR Deploy
-
+name: PR_DEPLOY
 on:
   issue_comment:
     types: [created]
@@ -16,13 +15,12 @@ jobs:
           ENV=$(echo $MESSAGE | cut -d '/' -f 2)
           VERSION=$(echo $MESSAGE | cut -d '/' -f 3)
           RUN_NUMBER=$(echo $MESSAGE | cut -d '.' -f 3)
-          gh run list --limit 100 --json number,databaseId --jq ".[] | select(.number == $RUN_NUMBER) | .databaseId"
-          ACTION_ID=$(gh run list --limit 100 --json number,databaseId --jq ".[] | select(.number == $RUN_NUMBER) | .databaseId")
-          echo "::set-output name=ACTION::$ACTION"
-          echo "::set-output name=ENV::$ENV"
-          echo "::set-output name=VERSION::$VERSION"
-          echo "::set-output name=RUN_NUMBER::$RUN_NUMBER"
-          #echo "::set-output name=ACTION_ID::$ACTION_ID"
+          ACTION_ID=$(gh run list -w PR_BUILD --limit 100 --json number,databaseId --jq ".[] | select(.number == $RUN_NUMBER) | .databaseId")
+          echo "ACTION=$ACTION" >> $GITHUB_OUTPUT
+          echo "ENV=$ENV" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "RUN_NUMBER=$RUN_NUMBER" >> $GITHUB_OUTPUT
+          echo "ACTION_ID=$ACTION_ID" >> $GITHUB_OUTPUT
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
@@ -43,7 +41,12 @@ jobs:
         run: |
           echo "Deploying $ENV"
           echo "Version $VERSION"
-
+      - uses: actions/checkout@v3
+      - name: Download artifact
+        run: |
+          gh run download $ACTION_ID
+          ls
+          ls output
         env:
           ACTION: ${{ needs.get-comment.outputs.ACTION }}
           ENV: ${{ needs.get-comment.outputs.ENV }}
