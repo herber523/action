@@ -30,9 +30,11 @@ jobs:
         echo "PR_URL=$PR_URL"
         echo "PR_NUMBER=$PR_NUMBER"
         echo "PR_TITLE=$PR_TITLE"
-        gh pr comment $PR_NUMBER -b "Hello World"
+        echo "VERSION=PR-$PR_NUMBER-V0.0.$ACTION_NUMBER"
+        gh pr comment $PR_NUMBER -b "Hello World, PR-$PR_NUMBER-V0.0.$ACTION_NUMBER"
       env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ needs.lint.outputs.PR_URL }}
           PR_NUMBER: ${{ needs.lint.outputs.PR_NUMBER }}
           PR_TITLE: ${{ needs.lint.outputs.PR_TITLE }}
+          ACTION_NUMBER: ${{ github.run_number }}
