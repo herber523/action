@@ -34,7 +34,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: output
-        path: $GITHUB_OUTPUT
+        path: main.go
     - name: Comment
       run: |
         echo "PR_URL=$PR_URL"
