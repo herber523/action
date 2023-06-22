@@ -3,6 +3,21 @@ name: Feature Branch CI
 on: [push, pull_request]
 
 jobs:
+  info:
+    runs-on: ubuntu-latest
+    permissions:
+        pull-requests: read
+    steps:
+    - uses: actions/checkout@v3
+    - name: Find PR number
+      id: pr
+      run: gh pr list  --search ${{ github.sha }} --state open --json "title,url,number" --template '{{range .}} PR_URL={{.url}}{{"\n"}} PR_NUMBER={{.number}}{{"\n"}} PR_TITLE={{.title}} {{end}}' | xargs -I {} echo {} >> $GITHUB_OUTPUT
+      env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+        PR_URL: ${{ steps.pr.outputs.PR_URL }}
+        PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
+        PR_TITLE: ${{ steps.pr.outputs.PR_TITLE }}
   lint:
     runs-on: ubuntu-latest
     permissions:
@@ -18,6 +33,7 @@ jobs:
         PR_URL: ${{ steps.pr.outputs.PR_URL }}
         PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
         PR_TITLE: ${{ steps.pr.outputs.PR_TITLE }}
+
   comment:
     runs-on: ubuntu-latest
     needs: lint
