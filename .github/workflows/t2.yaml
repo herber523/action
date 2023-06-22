@@ -1,8 +1,8 @@
 name: PR Deploy
 
 on:
-  pull_request_review_comment:
-    types: [created]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   build:
@@ -12,5 +12,6 @@ jobs:
         id: comment
         run: |
           echo "::set-output name=MESSAGE::$(jq --raw-output .comment.body "$GITHUB_EVENT_PATH")"
+          jq --raw-output .comment.body "$GITHUB_EVENT_PATH"
     outputs:
       MESSAGE: ${{ steps.comment.outputs.MESSAGE }}
