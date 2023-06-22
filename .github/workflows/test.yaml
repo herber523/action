@@ -7,5 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - run: jq --raw-output . "$GITHUB_EVENT_PATH"
+    - uses: jwalton/gh-find-current-pr@v1
+        id: findPr
+        with:
+          state: open
+    - run: echo "Your PR is ${PR}"
+      if: success() && steps.findPr.outputs.number
+      env:
+        PR: ${{ steps.findPr.outputs.pr }}
     - run: env
