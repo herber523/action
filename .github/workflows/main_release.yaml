@@ -16,8 +16,7 @@ jobs:
         mkdir out
         echo "Hello World" >> out/b 
     - uses: ncipollo/release-action@v1
-        with:
-          artifacts: "out/*"
-          generateReleaseNotes: "true"
-          token: ${{ secrets.GITHUB_TOKEN }}
-```
+      with:
+        artifacts: "out/*"
+        generateReleaseNotes: "true"
+        token: ${{ secrets.GITHUB_TOKEN }}
