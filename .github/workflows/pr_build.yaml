@@ -10,6 +10,7 @@ jobs:
       - name: Get comment message
         id: comment
         run: |
+          ls $GITHUB_EVENT_PATH
           echo "::set-output name=MESSAGE::$(jq --raw-output .comment.body "$GITHUB_EVENT_PATH")"
           ACTION=$(echo $MESSAGE | cut -d '/' -f 1)
           ENV=$(echo $MESSAGE | cut -d '/' -f 2)
