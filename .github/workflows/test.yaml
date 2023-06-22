@@ -1,11 +1,41 @@
 name: Feature Branch CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
+    permissions:
+        pull-requests: read
     steps:
     - uses: actions/checkout@v3
-    - run: pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH") && echo pull_number=$pull_number >> $GITHUB_ENV
-    - run: env
+    - name: Find PR number
+      id: pr
+      run: gh pr list  --search ${{ github.sha }} --state open --json "title,url,number" --template '{{range .}} PR_URL={{.url}}{{"\n"}} PR_NUMBER={{.number}}{{"\n"}} PR_TITLE={{.title}} {{end}}' | xargs -I {} echo {} >> $GITHUB_OUTPUT
+      env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+        PR_URL: ${{ steps.pr.outputs.PR_URL }}
+        PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
+        PR_TITLE: ${{ steps.pr.outputs.PR_TITLE }}
+  comment:
+    runs-on: ubuntu-latest
+    needs: lint
+    if: ${{ needs.lint.outputs.PR_URL != '' }}
+    permissions:
+        pull-requests: write
+    steps:
+    - uses: actions/checkout@v3
+    - name: Comment
+      run: |
+        echo "PR_URL=$PR_URL"
+        echo "PR_NUMBER=$PR_NUMBER"
+        echo "PR_TITLE=$PR_TITLE"
+        echo "VERSION=PR-$PR_NUMBER-V0.0.$ACTION_NUMBER"
+        gh pr comment $PR_NUMBER -b "Hello World, PR-$PR_NUMBER-V0.0.$ACTION_NUMBER"
+      env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ needs.lint.outputs.PR_URL }}
+          PR_NUMBER: ${{ needs.lint.outputs.PR_NUMBER }}
+          PR_TITLE: ${{ needs.lint.outputs.PR_TITLE }}
+          ACTION_NUMBER: ${{ github.run_number }}

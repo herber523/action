@@ -1,0 +1,17 @@
+name: PR Deploy
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get comment message
+        id: comment
+        run: |
+          echo "::set-output name=MESSAGE::$(jq --raw-output .comment.body "$GITHUB_EVENT_PATH")"
+          jq --raw-output .comment.body "$GITHUB_EVENT_PATH"
+    outputs:
+      MESSAGE: ${{ steps.comment.outputs.MESSAGE }}
