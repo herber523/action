@@ -49,7 +49,6 @@ jobs:
         echo "PR_TITLE=$PR_TITLE"
         echo "VERSION=PR-$PR_NUMBER-V0.0.$ACTION_NUMBER"
         gh pr comment $PR_NUMBER -b "Hello World, PR-$PR_NUMBER-V0.0.$ACTION_NUMBER"
-        gh run list --json number,workflowDatabaseId,databaseId
       env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ needs.lint.outputs.PR_URL }}
