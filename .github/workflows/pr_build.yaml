@@ -18,10 +18,10 @@ jobs:
       
           #gh run list --json number,databaseId --jq '.[] | select(.number == $RUN_NUMBER) | .databaseId'
           #ACTION_ID=$(gh run list --json number,databaseId --jq ".[] | select(.number == $RUN_NUMBER) | .databaseId")
-          #echo "::set-output name=ACTION::$ACTION"
-          #echo "::set-output name=ENV::$ENV"
-          #echo "::set-output name=VERSION::$VERSION"
-          #echo "::set-output name=RUN_NUMBER::$RUN_NUMBER"
+          echo "::set-output name=ACTION::$ACTION"
+          echo "::set-output name=ENV::$ENV"
+          echo "::set-output name=VERSION::$VERSION"
+          echo "::set-output name=RUN_NUMBER::$RUN_NUMBER"
           #echo "::set-output name=ACTION_ID::$ACTION_ID"
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
